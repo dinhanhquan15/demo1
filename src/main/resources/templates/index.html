@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Gửi Xe</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .table thead {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="text-center mb-4">Quản Lý Gửi Xe</h1>
+
+    <!-- Hiển thị lỗi nếu có -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Form Thêm Xe -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Thêm Xe Mới</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/vehicles/add}" th:object="${vehicle}" method="post">
+                <div class="mb-3">
+                    <label for="vehicleName" class="form-label">Tên Xe</label>
+                    <input type="text" class="form-control" id="vehicleName" th:field="*{vehicleName}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="licensePlate" class="form-label">Biển Số Xe</label>
+                    <input type="text" class="form-control" id="licensePlate" th:field="*{licensePlate}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="ownerName" class="form-label">Tên Chủ Xe</label>
+                    <input type="text" class="form-control" id="ownerName" th:field="*{ownerName}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Địa Chỉ</label>
+                    <input type="text" class="form-control" id="address" th:field="*{address}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="parkingHours" class="form-label">Số Giờ Gửi Xe</label>
+                    <input type="number" class="form-control" id="parkingHours" th:field="*{parkingHours}" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-custom">Thêm Xe</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Danh sách xe -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Danh Sách Xe</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>Mã Gửi Xe</th>
+                    <th>Tên Xe</th>
+                    <th>Biển Số</th>
+                    <th>Chủ Xe</th>
+                    <th>Địa Chỉ</th>
+                    <th>Thời Gian Bắt Đầu</th>
+                    <th>Số Giờ Gửi</th>
+                    <th>Phí (VND)</th>
+                    <th>Hành Động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="vehicle : ${vehicles}">
+                    <td th:text="${vehicle.ticketId}"></td>
+                    <td th:text="${vehicle.vehicleName}"></td>
+                    <td th:text="${vehicle.licensePlate}"></td>
+                    <td th:text="${vehicle.ownerName}"></td>
+                    <td th:text="${vehicle.address}"></td>
+                    <td th:text="${vehicle.startTime}"></td>
+                    <td th:text="${vehicle.parkingHours}"></td>
+                    <td th:text="${vehicle.calculateFee()}"></td>
+                    <td>
+                        <form th:action="@{/vehicles/remove}" method="post" style="display:inline;">
+                            <input type="hidden" name="ticketId" th:value="${vehicle.ticketId}">
+                            <button type="submit" class="btn btn-danger btn-sm">Lấy Xe</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(vehicles)}">
+                    <td colspan="9" class="text-center">Bãi xe trống!</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Xe có phí cao nhất -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Xe Có Phí Cao Nhất</h5>
+        </div>
+        <div class="card-body">
+            <div th:if="${highestFeeVehicle != null}">
+                <p><strong>Mã Gửi Xe:</strong> <span th:text="${highestFeeVehicle.ticketId}"></span></p>
+                <p><strong>Tên Xe:</strong> <span th:text="${highestFeeVehicle.vehicleName}"></span></p>
+                <p><strong>Biển Số:</strong> <span th:text="${highestFeeVehicle.licensePlate}"></span></p>
+                <p><strong>Phí:</strong> <span th:text="${highestFeeVehicle.calculateFee()}"></span> VND</p>
+            </div>
+            <div th:if="${highestFeeVehicle == null}" class="text-center">
+                <p>Bãi xe trống!</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
